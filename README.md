@@ -1,13 +1,13 @@
 # Bofur
 
-Simple timer built using [electron](http://electron.atom.io/) made as study and because many timers on linux looks awful.
+Simple timer built using [electron](http://electron.atom.io/). Made as study and because many timers on linux looks awful.
 
 
 ## Why is called Bofur?
 
 I'm terrible when I've to choose a name, so to not lose time in projects made as study I'll use the dwarves names of the Hobbit:
 
-- [x] Thorin
+- [ ] Thorin
 - [ ] Fili
 - [ ] Kili
 - [ ] Dwalin
@@ -17,7 +17,7 @@ I'm terrible when I've to choose a name, so to not lose time in projects made as
 - [ ] Nori
 - [ ] Ori
 - [ ] Bifur
-- [ ] Bofur
+- [x] Bofur
 - [ ] Bombur
 
 
@@ -25,5 +25,5 @@ I'm terrible when I've to choose a name, so to not lose time in projects made as
 
 This app is using:
 
-* IcoMoon - Free
-* node-notifier
+* [IcoMoon - Free](https://icomoon.io/)
+* [node-notifier](https://github.com/mikaelbr/node-notifier)
