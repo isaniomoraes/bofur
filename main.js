@@ -1,41 +1,92 @@
 'use strict';
 const electron = require('electron');
-const app = electron.app;  // Module to control application life.
-const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+const notifier = require('node-notifier');
+const path = require('path');
+const app = electron.app;
+const BrowserWindow = electron.BrowserWindow;
+const Menu = electron.Menu;
+const Tray = electron.Tray;
 
-// Report crashes to our server.
-electron.crashReporter.start();
-
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+var mainWindow;
+var appIcon;
+var forceQuit = false;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform != 'darwin') {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-app.on('ready', function() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({width: 600, height: 400});
+var gme = {
+  browserWindow: null,
+  openConfigWindow: function () {
+    var configWindow = new BrowserWindow({
+      width: 600,
+      height: 380,
+      resizable: false,
+      skipTaskbar: false,
+      icon: __dirname + '/assets/images/stopwatch-taskbar.png',
+    });
+    configWindow.loadURL('file://' + __dirname + 'index.html');
+  },
+  reloadWindow: function () {
+    BrowserWindow.getFocusedWindow().reload();
+  },
+  showMinimizedWindow: function () {
+    gme.browserWindow.restore();
+    gme.browserWindow.focus();
+  },
+  showInvisibleWindow: function () {
+    gme.browserWindow.show();
+  },
+  toggleMinimize: function () {
+    if (gme.browserWindow) {
+      var isMinimized = gme.browserWindow.isMinimized();
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+      if (isMinimized) {
+        gme.showMinimizedWindow();
+      } else {
+        gme.browserWindow.minimize();
+      }
+    }
+  }
+}
 
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
+function launch() {
+  var windowOpts = {
+    width: 600,
+    height: 380,
+    resizable: false,
+    skipTaskbar: false,
+    icon: __dirname + '/assets/images/stopwatch-taskbar.png',
+  };
+  gme.browserWindow = new BrowserWindow(windowOpts);
+  gme.browserWindow.loadURL('file://' + __dirname + '/index.html');
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
+  gme.browserWindow.show();
+
+  gme.browserWindow.on('close', function handleWindowClose (e) {
+    if(!forceQuit)
+      e.preventDefault();
+      gme.toggleMinimize();
   });
+
+  gme.browserWindow.on('before-quit', function handleWindowClose (e) {
+    gme.browserWindow = null;
+  });
+
+  appIcon = new Tray(__dirname +'/assets/images/stopwatch.png');
+  var contextMenu = Menu.buildFromTemplate([
+    { label: 'Show/Hide', type: 'radio', click: function() { gme.toggleMinimize(); } },
+    { label: 'Exit', type: 'radio', click: function() { forceQuit = true; app.quit(true); } },
+    ]);
+  appIcon.setToolTip('Bofur');
+  appIcon.setContextMenu(contextMenu);
+}
+
+app.on('ready', function() {
+  launch();
 });
